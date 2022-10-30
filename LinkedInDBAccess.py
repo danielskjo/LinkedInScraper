@@ -16,10 +16,13 @@ from sqlalchemy.exc import IntegrityError
 
 Base = declarative_base()
 
+
 class EmployeeEducation(Base):
     __tablename__ = 'employee_education'
-    emp_id = Column('emp_id', Integer, ForeignKey('employees.id'), primary_key=True)
-    edu_id = Column('edu_id', Integer, ForeignKey('educations.id'), primary_key=True)
+    emp_id = Column('emp_id', Integer, ForeignKey(
+        'employees.id'), primary_key=True)
+    edu_id = Column('edu_id', Integer, ForeignKey(
+        'educations.id'), primary_key=True)
     start_date = Column('start_date', Date)
     end_date = Column('end_date', Date)
     GPA = Column('GPA', String(100))
@@ -28,10 +31,13 @@ class EmployeeEducation(Base):
 
     education = relationship("Education")
 
+
 class EmployeeExperience(Base):
     __tablename__ = 'employee_experience'
-    emp_id = Column('emp_id', Integer, ForeignKey('employees.id'), primary_key=True)
-    exp_id = Column('exp_id', Integer, ForeignKey('experiences.id'), primary_key=True)
+    emp_id = Column('emp_id', Integer, ForeignKey(
+        'employees.id'), primary_key=True)
+    exp_id = Column('exp_id', Integer, ForeignKey(
+        'experiences.id'), primary_key=True)
     start_date = Column('start_date', Date, primary_key=True)
     end_date = Column('end_date', Date)
     location = Column('location', String(100))
@@ -40,9 +46,12 @@ class EmployeeExperience(Base):
 
     experience = relationship("Experience")
 
+
 employee_skill = Table('employee_skill', Base.metadata,
-                       Column('emp_id', Integer, ForeignKey('employees.id'), primary_key=True),
-                       Column('skill_id', Integer, ForeignKey('skills.id'), primary_key=True)
+                       Column('emp_id', Integer, ForeignKey(
+                           'employees.id'), primary_key=True),
+                       Column('skill_id', Integer, ForeignKey(
+                           'skills.id'), primary_key=True)
                        )
 
 
@@ -75,6 +84,7 @@ class Education(Base):
     degree_type = Column(String(100))
     UniqueConstraint(institution, degree, degree_type)
 
+
 class Experience(Base):
     __tablename__ = 'experiences'
 
@@ -83,12 +93,14 @@ class Experience(Base):
     company_name = Column(String(100))
     UniqueConstraint(position, company_name)
 
+
 class Skill(Base):
     __tablename__ = 'skills'
     id = Column(Integer, primary_key=True)
     skill = Column(String(100))
     category = Column(String(100))
     UniqueConstraint(skill, category)
+
 
 class LinkedInDB:
     def __init__(self, database, host, port, user, password):
@@ -97,8 +109,8 @@ class LinkedInDB:
         self.user = user
         self.password = password
         self.database = database
-        self.engine = create_engine(f"mysql+mysqlconnector://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}")
-
+        self.engine = create_engine(
+            f"mysql+mysqlconnector://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}")
 
     def __connect__(self):
         ''' Connect to MySQL database '''
@@ -124,7 +136,7 @@ class LinkedInDB:
     def __checkIfDuplicateProfile__(self, url):
         session = self.__connect__()
 
-        emp = session.query(Employee).filter(Employee.user_url==url).first()
+        emp = session.query(Employee).filter(Employee.user_url == url).first()
 
         session.close()
 
@@ -136,9 +148,10 @@ class LinkedInDB:
     def insertEmployees(self, employeeList):
         session = self.__connect__()
         for employee in employeeList:
-            emp, experiences, educations, skills = self.__extractTableTuples__(employee)
+            emp, experiences, educations, skills = self.__extractTableTuples__(
+                employee)
             employeeDupe = session.query(Employee). \
-                            filter(Employee.user_url==emp.user_url).first()
+                filter(Employee.user_url == emp.user_url).first()
 
             if employeeDupe is not None:
                 print(emp.user_url, "is a duplicate")
@@ -176,7 +189,8 @@ class LinkedInDB:
             eduList = {}
             for edu in educations:
                 education = None
-                eduTuple = (edu[0].institution, edu[0].degree, edu[0].degree_type)
+                eduTuple = (edu[0].institution,
+                            edu[0].degree, edu[0].degree_type)
 
                 if eduTuple in eduList:
                     education = eduList[eduTuple]
@@ -238,9 +252,11 @@ class LinkedInDB:
         tuples = []
         for exp in exps:
             # Appends a tuple of two tuples: First tuple for exp table, Second tuple for empexp table
-            experience = Experience(position=exp.position, company_name=exp.company_name)
+            experience = Experience(
+                position=exp.position, company_name=exp.company_name)
             employeeExperience = EmployeeExperience(start_date=self.__castToDate__(exp.start_date),
-                                                    end_date=self.__castToDate__(exp.end_date),
+                                                    end_date=self.__castToDate__(
+                                                        exp.end_date),
                                                     location=exp.location,
                                                     description=exp.description,
                                                     employment_type=exp.employment_type
@@ -255,9 +271,11 @@ class LinkedInDB:
         tuples = []
         for edu in edus:
             # Appends a tuple of two tuples: First tuple for edu table, Second tuple for empedu table
-            education = Education(institution=edu.institution, degree=edu.degree, degree_type=edu.degree_type)
+            education = Education(
+                institution=edu.institution, degree=edu.degree, degree_type=edu.degree_type)
             employeeEducation = EmployeeEducation(start_date=self.__castToDate__(edu.start_date),
-                                                  end_date=self.__castToDate__(edu.end_date),
+                                                  end_date=self.__castToDate__(
+                                                      edu.end_date),
                                                   GPA=edu.GPA,
                                                   activities=edu.activities,
                                                   description=edu.description

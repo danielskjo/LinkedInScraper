@@ -5,6 +5,7 @@ from LinkedInScraper import LinkedInScraper, \
 import schedule
 import time
 
+
 def MakeQueryCombinations(companies, positions, locations):
     queries = []
     for company in companies:
@@ -12,6 +13,7 @@ def MakeQueryCombinations(companies, positions, locations):
             for location in locations:
                 queries.append(company + " " + position + " " + location)
     return queries
+
 
 def URLPopulation():
     # Load queries into memory
@@ -32,6 +34,7 @@ def URLPopulation():
 
         # Eliminate all successful queries from previous run
         WriteLinesToFile("queries.txt", queries[lastQueryIndex:])
+
 
 '''
 # Driver Code
@@ -74,6 +77,4 @@ URLPopulation()
 print("Scheduled URLPopulation. Please wait until the scheduled time")
 while True:
     schedule.run_pending()
-    time.sleep(60) # wait one minute
-
-
+    time.sleep(60)  # wait one minute

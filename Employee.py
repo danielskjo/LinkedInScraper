@@ -1,11 +1,12 @@
 from Education import Education
 from Experience import Experience
 
+
 class Employee:
     def __init__(self):
-        self.experience = [] # List
-        self.education = [] # List
-        self.skills = {} # Dict
+        self.experience = []  # List
+        self.education = []  # List
+        self.skills = {}  # Dict
 
         self.user_url_id = ""
         self.name = ""
@@ -40,7 +41,8 @@ class Employee:
     def __toDict__(self):
         empDict = {}
         # Value is a dictionary of attribute values
-        empDict['employee'] = {'user_url': self.user_url_id, 'user_name': self.name, 'location': self.location, 'header': self.header, 'about': self.about}
+        empDict['employee'] = {'user_url': self.user_url_id, 'user_name': self.name,
+                               'location': self.location, 'header': self.header, 'about': self.about}
         # Value is a list of dictionaries of attribute values
         empDict['education'] = [x.__toDict__ for x in self.education]
         # Value is a dictionary of category-skill List pairs

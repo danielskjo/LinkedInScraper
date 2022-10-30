@@ -6,7 +6,8 @@ import schedule
 import time
 
 # Set Timeline to activate scraper
-    # Scrape profiles from employeeURLs.txt until the list ends or LinkedIn blocks scraper
+# Scrape profiles from employeeURLs.txt until the list ends or LinkedIn blocks scraper
+
 
 def scrapeProfiles():
     driver = LinkedInScraper(USERNAME, PASSWORD, DRIVER_PATH, DATABASE)
@@ -25,7 +26,8 @@ def scrapeProfiles():
 
             # Scraping has failed in some way (but an exception is not thrown)
             if empList[0] is None:
-                print("ERROR:", URL, "did not extract properly. There is either a bug or scraping was blocked.")
+                print(
+                    "ERROR:", URL, "did not extract properly. There is either a bug or scraping was blocked.")
                 # If a URL has failed twice, remove it from the list (doesn't account for blocked scraping,
                 # but losing one datapoint is ok)
                 if previousFail == URL:
@@ -47,25 +49,30 @@ def scrapeProfiles():
                 successfulScrapes = i
         except:
             print(URL, "cannot be extracted, deleting")
-            WriteLinesToFile("employeeURLs.txt", driver.__employeeURLsToBeScraped__[i+1:])
+            WriteLinesToFile("employeeURLs.txt",
+                             driver.__employeeURLsToBeScraped__[i+1:])
             with open("URLsWithErrors.txt", "a+") as file:
                 file.write(URL + "\n")
             continue
 
     # Rewrite file to chop off all successfully scraped files
-    WriteLinesToFile("employeeURLs.txt", driver.__employeeURLsToBeScraped__[successfulScrapes:])
+    WriteLinesToFile("employeeURLs.txt", driver.__employeeURLsToBeScraped__[
+                     successfulScrapes:])
     print(successfulScrapes, "profiles, successfully extracted")
 
 
 schedule.every().day.at("00:00").do(scrapeProfiles)
 schedule.every().day.at("02:00").do(scrapeProfiles)
 schedule.every().day.at("22:00").do(scrapeProfiles)
+schedule.every().day.at("04:00").do(scrapeProfiles)
+schedule.every().day.at("06:00").do(scrapeProfiles)
+schedule.every().day.at("08:00").do(scrapeProfiles)
+schedule.every().day.at("10:00").do(scrapeProfiles)
+schedule.every().day.at("12:00").do(scrapeProfiles)
 
 print("Initial Test Run of Profile Scraper...")
 scrapeProfiles()
 
 while True:
     schedule.run_pending()
-    time.sleep(60) # wait one minute
-
-
+    time.sleep(60)  # wait one minute
