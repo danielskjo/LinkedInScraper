@@ -281,6 +281,7 @@ class LinkedInScraper:
                 URLQuery += ('%20' + searchTerm)
 
         # Navigate to webpage
+        # Example: https://www.linkedin.com/search/results/people/?keywords=Amazon%20Software%20Engineer%Seattle,%20WA
         self.driver.get(
             f"https://www.linkedin.com/search/results/people/?keywords={URLQuery}")
 
@@ -299,45 +300,35 @@ class LinkedInScraper:
         try:
             if main.find_element(By.XPATH, "./div/div/div/section/h2").text == "No results found":
                 # Remove query from file
+                print("No results found")
                 return True
         except NoSuchElementException:
-            pass
+            print("Results found")
 
         try:
             pageButtonCount = main.find_element(By.XPATH,
                                                 "./div/div/div[4]/div/div/ul/li[last()]/button/span")
         except NoSuchElementException:
-            print("Element not found, trying new location")
+            print(
+                "Page count button not found at ./div/div/div[4]/div/div/ul/li[last()]/button/span")
 
         if pageButtonCount is None:
             try:
                 pageButtonCount = main.find_element(By.XPATH,
                                                     "./div/div/div[5]/div/div/ul/li[last()]/button/span")
             except NoSuchElementException:
-                print("Element not found, trying new location")
-
-        if pageButtonCount is None:
-            # For whatever reason, sometimes the element is located at this xpath
-            try:
-                pageButtonCount = main.find_element(By.XPATH,
-                                                    "./div/div/div[4]/div/div/ul/li[last()]/button/span")
-            except NoSuchElementException:
-                print("Element not found, trying new location")
-
-        if pageButtonCount is None:
-            try:
-                pageButtonCount = self.driver.find_element(By.XPATH,
-                                                           "/html/body/div[5]/div[3]/div/div[2]/div/div[1]/main/div/div/div[5]/div/div/ul/li[10]/button/span")
-            except NoSuchElementException:
-                print("Element not found, defaulting to 0")
+                print(
+                    "Page count button not found at ./div/div/div[5]/div/div/ul/li[last()]/button/span")
 
         if pageButtonCount is not None:
             maxPageCount = int(pageButtonCount.text)
         else:
-            maxPageCount = 0
+            maxPageCount = 1
 
         print("Number of pages to parse:", maxPageCount)
+
         for page in range(1, maxPageCount + 1):
+
             if page == 1:
                 print("Parsing page:", page, end="")
             else:
