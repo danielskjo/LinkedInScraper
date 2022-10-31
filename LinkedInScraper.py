@@ -281,7 +281,7 @@ class LinkedInScraper:
                 URLQuery += ('%20' + searchTerm)
 
         # Navigate to webpage
-        # Example: https://www.linkedin.com/search/results/people/?keywords=Amazon%20Software%20Engineer%Seattle,%20WA
+        # Example: https://www.linkedin.com/search/results/people/?keywords=Amazon%20Software%20Engineer%20Seattle,%20WA
         self.driver.get(
             f"https://www.linkedin.com/search/results/people/?keywords={URLQuery}")
 
