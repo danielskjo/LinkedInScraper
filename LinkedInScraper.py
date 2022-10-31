@@ -358,8 +358,10 @@ class LinkedInScraper:
         print("Extracting experience from: ", employeeURL, sep="")
 
         experiences = []
+
         # profileurl/details/experience
-        self.driver.get(employeeURL+"/details/experience")
+        self.driver.get(employeeURL + "/details/experience")
+
         # All information contained within <main>
         expSection = None
         try:
@@ -400,7 +402,6 @@ class LinkedInScraper:
                 expList = ul.find_elements(By.XPATH, "./li")
             except NoSuchElementException:
                 pass
-
         except TimeoutException:
             print("ERROR: Could not find experience list (1)")
             return None
@@ -556,7 +557,7 @@ class LinkedInScraper:
                 # Position
                 try:
                     experience.position = exp.find_element(
-                        By.XPATH, "./div/div[2]/div/div[1]/div/span/span[1]").text
+                        By.XPATH, "./div/div/div[2]/div/div[1]/div/span/span[1]").text
                 except NoSuchElementException:
                     print("ERROR: Could not find position [2]")
                     print("Element that caused error:")
@@ -566,7 +567,7 @@ class LinkedInScraper:
                 # Company and Type
                 try:
                     companyAndType = exp.find_element(
-                        By.XPATH, "./div/div[2]/div/div[1]/span[1]/span[1]").text
+                        By.XPATH, "./div/div/div[2]/div/div[1]/span[1]/span[1]").text
 
                     try:
                         dotInd = companyAndType.rindex('·')
@@ -584,7 +585,7 @@ class LinkedInScraper:
                 # Location (Optional)
                 try:
                     experience.location = exp.find_element(
-                        By.XPATH, "./div/div[2]/div/div[1]/span[3]/span[1]").text
+                        By.XPATH, "./div/div/div[2]/div/div[1]/span[3]/span[1]").text
                 except NoSuchElementException:
                     pass
 
@@ -593,7 +594,7 @@ class LinkedInScraper:
                     # Flag if this date does not contain a -
                     noEnd = False
                     dates = exp.find_element(
-                        By.XPATH, "./div/div[2]/div/div[1]/span[2]/span[1]").text
+                        By.XPATH, "./div/div/div[2]/div/div[1]/span[2]/span[1]").text
 
                     try:
                         # In case the end of the date is included by accident
@@ -632,7 +633,7 @@ class LinkedInScraper:
                 # Description (Optional)
                 try:
                     experience.description = exp.find_element(
-                        By.XPATH, "./div/div[2]/div[2]/ul/li/div/ul/li/div/div/div/span[1]").text
+                        By.XPATH, "./div/div/div[2]/div[2]/ul/li/div/ul/li/div/div/div/span[1]").text
                 except NoSuchElementException:
                     pass
 
@@ -678,7 +679,7 @@ class LinkedInScraper:
             edu = Education()
             try:
                 degreeLine = educationElem.find_element(
-                    By.XPATH, "./div/div[2]/div[1]/a/span[1]/span[1]").text
+                    By.XPATH, "./div/div/div[2]/div[1]/a/div/span[1]/span[1]").text
                 degreeArr = degreeLine.split(", ")
                 edu.degree = degreeArr[0]
                 edu.degree_type = degreeArr[-1]
@@ -689,7 +690,7 @@ class LinkedInScraper:
 
             try:
                 edu.institution = educationElem.find_element(
-                    By.XPATH, "./div/div[2]/div[1]/a/div/span/span[1]").text
+                    By.XPATH, "./div/div/div[2]/div[1]/a/div/span/span[1]").text
             except NoSuchElementException:
                 pass
 
@@ -737,7 +738,7 @@ class LinkedInScraper:
 
             try:
                 dates = educationElem.find_element(
-                    By.XPATH, "./div/div[2]/div[1]/a/span[2]/span[1]").text
+                    By.XPATH, "./div/div/div[2]/div[1]/a/span[2]/span[1]").text
                 dateArr = dates.split(" - ")
                 edu.start_date = dateArr[0]
                 edu.end_date = dateArr[-1]
@@ -808,13 +809,13 @@ class LinkedInScraper:
             for skillElem in categoryList:
                 try:
                     skill = skillElem.find_element(
-                        By.XPATH, "./div/div[2]/div[1]/a/div/span[1]/span[1]").text
+                        By.XPATH, "./div/div/div[2]/div[1]/a/div/span[1]/span[1]").text
                     skills[skillCategory].append(skill)
                 except NoSuchElementException:
                     # Skill may not have a link (<a> element)
                     try:
                         skill = skillElem.find_element(
-                            By.XPATH, "./div/div[2]/div[1]/div[1]/div/span/span[1]").text
+                            By.XPATH, "./div/div/div[2]/div[1]/div[1]/div/span/span[1]").text
                         skills[skillCategory].append(skill)
                     except NoSuchElementException:
                         print("ERROR: Skill within category not found")
@@ -856,15 +857,18 @@ class LinkedInScraper:
 
             if nameElement:
                 currentEmployee.name = nameElement.text
-        except TimeoutException:
+        except NoSuchElementException:
             print("Could not find name")
-            return None
+        except TimeoutException:
+            print("TimeoutException when scraping name")
 
         try:
             currentEmployee.location = main.find_element(
                 By.XPATH, "./section[1]/div[2]/div[2]/div[2]/span[1]").text
         except NoSuchElementException:
-            pass
+            print("Could not find location")
+        except TimeoutException:
+            print("TimeoutException when scraping location")
 
         # Header
         try:
@@ -872,8 +876,10 @@ class LinkedInScraper:
                 EC.presence_of_element_located(
                     (By.XPATH,
                      "./section[1]/div[2]/div[2]/div[1]/div[2]"))).text
+        except NoSuchElementException:
+            print("Could not find header")
         except TimeoutException:
-            pass
+            print("TimeoutException when scraping header")
 
         try:
             currentEmployee.about = WebDriverWait(main, 2).until(
@@ -893,11 +899,13 @@ class LinkedInScraper:
 
         if currentEmployee.experience is None:
             return None
+
         currentEmployee.education = self.ExtractEmployeeEducation(
             employeeURL)  # List
 
         if currentEmployee.education is None:
             return None
+
         currentEmployee.skills = self.ExtractEmployeeSkills(
             employeeURL)  # Dict
 
